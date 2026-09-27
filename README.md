@@ -1,1 +1,528 @@
-# 2026-iut-td1
+## TD1
+
+Cloner [https://github.com/Zomzog/2026-iut-td1.git](https://github.com/Zomzog/2026-iut-td1.git?utm_source=gemini)
+
+Sur le réseau de l'IUT, ajouter dans le fichier `~/.gradle/gradle.properties` (à créer s'il n'existe pas, il est commun à tous vos projets) le contenu suivant :
+
+```properties
+systemProp.http.proxyHost=srv-proxy-etu-2.iut-nantes.univ-nantes.prive
+systemProp.http.proxyPort=3128
+systemProp.https.proxyHost=srv-proxy-etu-2.iut-nantes.univ-nantes.prive
+systemProp.https.proxyPort=3128
+
+```
+
+Importer le projet dans votre IDE en utilisant gradle.
+
+Les modifications sont à faire dans le module Exo1
+
+## Exo 0
+
+Implémenter `ListDatabase` (le squelette est fourni, les méthodes valent `TODO()`),
+cette implémentation utilisera une liste en mémoire pour la persistance.
+
+Les tests de `Exo0Test` doivent passer.
+
+## Exo 1
+
+En utilisant l'approche des @Bean,
+créer un fichier AppConfig qui gère la création des beans userService et Database.
+
+Dans la classe de test imbriquée `ExercisesTest.Exo1`, charger le contexte Spring à partir de AppConfig
+pour obtenir une instance de userService.
+
+## Exo 2
+
+Avec la même approche,
+ajouter la création d'un bean SuperUserService.
+
+Il doit partager la même instance de `Database`.
+
+Dans la classe de test imbriquée `ExercisesTest.Exo2`, charger le contexte Spring à partir de AppConfig
+pour obtenir une instance des services.
+
+Le test doit passer.
+
+## Exo 3
+
+En jouant sur le scope, faire en sorte qu'ils ne partagent plus la même instance de `Database`.
+
+Dans la classe de test imbriquée `ExercisesTest.Exo3`, charger le contexte Spring à partir de AppConfig
+pour obtenir une instance des services.
+
+Le test doit passer, le test `Exo2` ne passe plus.
+
+## Exo 4
+
+Supprimer le constructeur de SuperUserService et utiliser l'injection avec Autowired pour ce service.
+
+> **NOTE:** l'injection par champ (`@Autowired` sur une propriété) est là pour que vous voyiez comment elle fonctionne. En pratique, on préfère l'injection par constructeur (comme avant cet exo) : dépendances explicites, testable sans Spring.
+
+Le test `Exo3` doit toujours fonctionner.
+
+## Exo 5
+
+Remplacer la création du bean `Database` en utilisant le stéréotype `@Repository`.
+
+Il faut ajouter un @ComponentScan sur AppConfig pour que Spring le trouve.
+
+Le test `Exo3` doit toujours fonctionner.
+
+## Exo 6
+
+Créer une classe de tests unitaires `ListDatabaseTest` (dans `src/test/kotlin/iut/nantes/`) qui couvre à 100% `ListDatabase`.
+
+> **TIP:** pour mesurer la couverture dans IntelliJ, clic droit sur la classe de test puis **Run 'ListDatabaseTest' with Coverage**. Le résultat s'affiche dans la fenêtre **Coverage** et en vert/rouge dans le code de `ListDatabase`.
+
+## Exo 6.5
+
+Créer une nouvelle version de Database nommée `HashDatabase` en utilisant une `Map<UUID, User>` comme persistance.
+
+Elle doit répondre aux mêmes tests que ListDatabaseTest.
+
+> **TIP:** pour ne pas dupliquer les tests, écrivez-les dans une classe abstraite `DatabaseTest` avec une méthode abstraite `createDatabase(): Database`, puis créez `ListDatabaseTest` et `HashDatabaseTest` qui en héritent et fournissent chacun leur implémentation.
+
+## Exo 7
+
+Dans AppConfig, créer le bean de HashDatabase en scope Singleton.
+Utiliser ce bean pour superUserService.
+
+Créer `Exo7Test.kt` (dans `src/test/kotlin/iut/nantes`) avec ce contenu, le test doit passer :
+
+```kotlin
+class Exo7Test {
+
+    @Test
+    fun test() {
+        val context = AnnotationConfigApplicationContext(AppConfig::class.java)
+        val userService = context.getBean(UserService::class.java)
+        val superUserService = context.getBean(SuperUserService::class.java)
+
+        assertThat(userService.database).isInstanceOf(ListDatabase::class)
+        assertThat(superUserService.database).isInstanceOf(HashDatabase::class)
+    }
+}
+
+```
+
+## Exo 8
+
+Ajouter les dépendances `org.springframework.boot:spring-boot-starter` et `org.springframework.boot:spring-boot-starter-test`.
+
+Remplacer tout ce qui est possible par l'utilisation de l'annotation SpringBootApplication dans le main.
+
+> **WARNING:** `@SpringBootTest` cherche l'application `@SpringBootApplication` dans le package du test, puis dans les packages parents. Le test doit donc être dans le package de l'application (ou un sous-package), ici `iut.nantes`.
+
+Créer `Exo8Test.kt` avec ce contenu, le test doit passer.
+
+```kotlin
+@SpringBootTest
+class Exo8Test {
+
+    @Autowired
+    private lateinit var userService: UserService
+
+    @Test
+    fun test() {
+        // Test le chargement du contexte
+    }
+}
+
+```
+
+## Exo 9
+
+Ajouter les dépendances de test `io.mockk:mockk-jvm:1.14.6` et `com.ninja-squad:springmockk:5.0.1`.
+
+Créer `Exo9Test.kt` : sur le modèle de `Exo8Test`, remplacer la Database de userService par un mock.
+
+Ajouter ce test et le compléter pour qu'il soit valide.
+
+```kotlin
+@Test
+fun test() {
+    // GIVEN TODO
+
+    // THEN
+    assertThrows<NoSuchElementException> { userService.delete(user()) }
+    userService.delete(user(UUID.randomUUID()))
+}
+
+```
+
+Le `GIVEN` consiste à programmer le mock avec `every { ... } throws ...` ou `every { ... } just Runs`.
+
+Avec MockK, si plusieurs `every` correspondent à un appel, c'est le dernier déclaré qui s'applique :
+déclarez donc le cas général (`any()`) avant le cas particulier.
+
+```kotlin
+every { database.delete(any()) } just Runs
+every { database.delete(user()) } throws NoSuchElementException()
+
+```
+
+Pour que `userService` utilise le mock, déclarez-le dans la classe de test avec `@MockkBean lateinit var database: Database`.
+
+## Exo 10
+
+À partir de cet exercice, les modifications seront à faire dans le module Exo10.
+
+Créer HelloController.kt dans un sous-package controller.
+
+```kotlin
+@RestController
+class HelloController {
+
+    @GetMapping("/hello")
+    fun hello() = "world"
+}
+
+```
+
+### Lancer & tester
+
+Lancer `Exo10Application.kt` qui est à la racine du projet (clic droit -> run),
+ou en ligne de commande :
+
+```bash
+./gradlew :exo10:bootRun
+
+```
+
+Appeler GET localhost:8080/hello et vérifier que la réponse est bien "world".
+
+Par exemple en CURL
+
+```bash
+curl -XGET -v localhost:8080/hello
+...
+< HTTP/1.1 200
+...
+world
+
+```
+
+## CRUD
+
+Le but de la suite des Exercises est de créer un premier CRUD (Create, Read, Update, Delete).
+
+Le CRUD doit manipuler des films dont on a les informations : Nom, Date de sortie, Note, Liste des langues.
+
+Pour cette implémentation, une Map en mémoire permettra de faire office de base de données.
+La clé unique est le nom du film.
+
+La map peut être initialisée avec une liste de films (cf MOVIES dans la classe Movie).
+
+L'implémentation se fera dans une classe MovieController.
+
+> **TIP:** tous les endpoints commencent par `/api/movies` : `@RequestMapping("/api/movies")` sur la classe évite de répéter le préfixe.
+
+Des tests sont fournis dans `MovieControllerTest` (un `@Nested` par exo) :
+ils sont rouges au départ et doivent passer au fur et à mesure des exos.
+
+## Exo 11: Create
+
+Le premier endpoint POST `/api/movies` prend le JSON d'un film, l'enregistre dans la Map et répond un HTTP 201 avec le contenu du film en body.
+La réponse contient aussi le header `Location` avec l'URL de la ressource créée (`/api/movies/{name}`).
+
+> **TIP:** `ResponseEntity.created(uri)` positionne le status 201 et le header `Location`. Le nom du film peut contenir des espaces : l'URI doit être encodée (`Jurassic%20Park`).
+
+Exemple d'appel :
+
+```bash
+curl --location 'localhost:8080/api/movies' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Jurassic Park",
+    "rating": 91,
+    "releaseDate": 1993,
+    "languages": [ "VO", "VFF", "VFQ"]
+}'
+
+```
+
+## Exo 12: Create - Conflit
+
+Un endpoint de création doit normalement signaler si la ressource existe déjà.
+
+Modifier le endpoint pour que si on envoie deux fois le même nom de film, la réponse soit un HTTP 409 (conflit).
+
+Exemple d'appel :
+
+```bash
+curl --location 'localhost:8080/api/movies' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Jurassic Park",
+    "rating": 91,
+    "releaseDate": 1993,
+    "languages": [ "VO", "VFF", "VFQ"]
+}' &&
+curl --location 'localhost:8080/api/movies' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Jurassic Park",
+    "rating": 90,
+    "releaseDate": 1992,
+    "languages": [ "VO" ]
+}'
+
+```
+
+## Exo 13: Read - Liste
+
+Le premier endpoint de lecture est un endpoint de liste.
+Un appel à GET `/api/movies` doit répondre 200 avec la liste des films qui sont dans la Map.
+
+Exemple d'appel :
+
+```bash
+curl --location 'localhost:8080/api/movies'
+
+```
+
+Réponse :
+
+```json
+[
+  {
+    "name": "The Dark Knight",
+    "releaseDate": 2008,
+    "rating": 9,
+    "languages": [
+      "VO"
+    ]
+  }
+]
+
+```
+
+## Exo 14: Read - Unique
+
+Ajouter un endpoint GET `/api/movies/{name}` qui retourne :
+
+* un status 200 avec le contenu du film s'il existe dans la Map,
+* un status 404 sinon.
+
+Exemple d'appel :
+
+```bash
+curl -v --location 'localhost:8080/api/movies/Dune'
+
+HTTP/1.1 404
+
+```
+
+```bash
+curl --location 'localhost:8080/api/movies/Inception'
+
+```
+
+Réponse :
+
+```json
+{
+    "name": "Inception",
+    "releaseDate": 2010,
+    "rating": 8,
+    "languages": [
+      "VF"
+    ]
+}
+
+```
+
+## Exo 15: Update
+
+Ajouter un endpoint PUT `/api/movies/{name}` qui retourne :
+
+* un status 400 si la requête est invalide
+* un status 404 si le film n'existe pas
+* un status 200 sinon, met à jour le film dans la Map et le retourne,
+
+Exemple d'appel :
+
+```bash
+curl --location --request PUT 'localhost:8080/api/movies/Inception' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Inception",
+    "releaseDate": 2010,
+    "rating": 87,
+    "languages": [
+      "VF", "VO"
+    ]
+}'
+
+```
+
+Réponse :
+
+```json
+{
+    "name": "Inception",
+    "releaseDate": 2010,
+    "rating": 87,
+    "languages": [
+      "VF", "VO"
+    ]
+}
+
+```
+
+```bash
+curl -v --location --request PUT 'localhost:8080/api/movies/Inception' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "My Little Pony",
+    "releaseDate": 2010,
+    "rating": 87,
+    "languages": [
+      "VF", "VO"
+    ]
+}'
+
+HTTP/1.1 400
+
+```
+
+```bash
+curl -v --location --request PUT 'localhost:8080/api/movies/Dune' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Dune",
+    "releaseDate": 2010,
+    "rating": 87,
+    "languages": [
+      "VF", "VO"
+    ]
+}'
+
+HTTP/1.1 404
+
+```
+
+## Exo 16: Delete
+
+Ajouter un endpoint DELETE `/api/movies/{name}` qui retourne :
+
+* un status 204 si le film existe et le supprime de la Map,
+* un status 404 sinon.
+
+Exemple d'appel :
+
+```bash
+curl -v --location --request DELETE 'localhost:8080/api/movies/Inception'
+
+HTTP/1.1 204
+
+```
+
+```bash
+curl -v --location --request DELETE 'localhost:8080/api/movies/Dune'
+
+HTTP/1.1 404
+
+```
+
+## Exo 17: Liste filtrée
+
+Ajouter sur la liste des films la possibilité de filtrer par note.
+
+> **TIP:** le paramètre `rating` est optionnel : sans lui, la liste complète est renvoyée (`@RequestParam` nullable ou `required = false`).
+
+Exemple d'appel :
+
+```bash
+curl --location 'localhost:8080/api/movies?rating=99'
+
+```
+
+Réponse :
+
+```json
+[
+  {
+    "name": "My Little Pony",
+    "releaseDate": 2017,
+    "rating": 99,
+    "languages": [
+      "VO",
+      "VFF"
+    ]
+  }
+]
+
+```
+
+## Exo 18: Gestion des langues
+
+Sur la liste des films, si le header `Accept-Language` est fourni,
+utilisez-le pour traduire les titres.
+
+Les traductions sont dans Movie.FR_FR et Movie.FR_CA,
+si elle n'est pas disponible, utilisez le titre original.
+
+Exemple d'appel :
+
+```bash
+curl --header "Accept-Language: fr-FR" --location 'localhost:8080/api/movies?rating=99'
+
+```
+
+Réponse :
+
+```json
+[
+  {
+    "name": "My Little Pony, le film",
+    "releaseDate": 2017,
+    "rating": 99,
+    "languages": [
+      "VO",
+      "VFF"
+    ]
+  }
+]
+
+```
+
+Exemple d'appel :
+
+```bash
+curl --header "Accept-Language: de-DE" --location 'localhost:8080/api/movies?rating=99'
+
+```
+
+Réponse :
+
+```json
+[
+  {
+    "name": "My Little Pony: The Movie",
+    "releaseDate": 2017,
+    "rating": 99,
+    "languages": [
+      "VO",
+      "VFF"
+    ]
+  }
+]
+
+```
+
+## Exo 19
+
+En utilisant MockMvc + SpringBootTest, faire une couverture à 100% du endpoint localhost:8080/api/movies?rating
+
+Un exemple est fourni dans MovieControllerTest,
+
+La documentation se trouve [ici](https://docs.spring.io/spring-framework/reference/testing/mockmvc.html?utm_source=gemini)
+
+> **NOTE:** utilisez le DSL Kotlin de `MockMvc` (`mockMvc.get(...) { ... }.andExpect { ... }`), comme dans l'exemple. Spring propose aussi `MockMvcTester` (API AssertJ) : elle existe, mais n'est pas utilisée dans ce TD.
+
+## Exo 20
+
+En utilisant WebMvcTest, faire une couverture à 100% du RestController
+
+> **TIP:** `@WebMvcTest` ne charge que la couche web : les dépendances du contrôleur doivent être mockées. Ici le contrôleur utilise directement `Database` (il n'y a pas de couche service), c'est donc elle que vous mockez avec `@MockkBean`.
