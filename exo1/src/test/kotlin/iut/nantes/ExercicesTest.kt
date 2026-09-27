@@ -89,8 +89,8 @@ class ExercisesTest {
 
         @Test
         fun test() {
-            val context: AnnotationConfigApplicationContext = TODO()
-            val userService: UserService = TODO()
+            val context = AnnotationConfigApplicationContext(AppConfig::class.java)
+            val userService: UserService = context.getBean(UserService::class.java)
             userService.save(user())
             val user = userService.findOne(user().id)
 
