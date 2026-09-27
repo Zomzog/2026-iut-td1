@@ -50,6 +50,15 @@ class ExercisesTest {
         }
 
         @Test
+        fun `update d'un utilisateur non existant`() {
+            val updated = user().copy(name = "Jane Doe")
+
+            database.update(updated)
+
+            assertThat(database.findOne(user().id)).isNull()
+        }
+
+        @Test
         fun `findAll sans nom renvoie tous les utilisateurs`() {
             database.save(user())
             database.save(user(UUID(0, 2), "Jane Doe"))
