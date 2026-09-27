@@ -14,6 +14,6 @@ class AppConfig {
     fun userService(db: Database) = UserService(db)
 
     @Bean
-    fun superUserService(db: Database) = SuperUserService(db)
+    fun superUserService() = SuperUserService()
 
 }
