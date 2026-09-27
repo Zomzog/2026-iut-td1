@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName
 import java.util.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 class ExercisesTest {
 
@@ -88,6 +89,7 @@ class ExercisesTest {
 
         @Test
         fun test() {
+            val context: AnnotationConfigApplicationContext = TODO()
             val userService: UserService = TODO()
             userService.save(user())
             val user = userService.findOne(user().id)
@@ -101,8 +103,9 @@ class ExercisesTest {
 
         @Test
         fun test() {
-            val userService: UserService = TODO()
-            val superUserService: SuperUserService = TODO()
+            val context = AnnotationConfigApplicationContext(AppConfig::class.java)
+            val userService: UserService = context.getBean(UserService::class.java)
+            val superUserService: SuperUserService = context.getBean(SuperUserService::class.java)
             userService.save(user())
 
             assertThat(superUserService.findAll()).isEqualTo(listOf(user()))
@@ -114,8 +117,9 @@ class ExercisesTest {
 
         @Test
         fun test() {
-            val userService: UserService = TODO()
-            val superUserService: SuperUserService = TODO()
+            val context = AnnotationConfigApplicationContext(AppConfig::class.java)
+            val userService: UserService = context.getBean(UserService::class.java)
+            val superUserService: SuperUserService = context.getBean(SuperUserService::class.java)
             userService.save(user())
 
             assertThat(superUserService.findAll()).isEmpty()

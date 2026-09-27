@@ -26,7 +26,7 @@ Les tests de `Exo0Test` doivent passer.
 ## Exo 1
 
 En utilisant l'approche des @Bean,
-créer un fichier AppConfig qui gère la création des beans userService et Database.
+dans le fichier `AppConfig` qui gère la création des beans userService et Database.
 
 Dans la classe de test imbriquée `ExercisesTest.Exo1`, charger le contexte Spring à partir de AppConfig
 pour obtenir une instance de userService.
