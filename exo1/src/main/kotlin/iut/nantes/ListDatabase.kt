@@ -4,23 +4,30 @@ import java.util.UUID
 
 class ListDatabase : Database {
 
+    private val users: MutableList<User> = mutableListOf()
+
     override fun save(user: User) {
-        TODO()
+       users.add(user)
     }
 
     override fun delete(user: User) {
-        TODO()
+        users.removeIf { it.id == user.id }
     }
 
     override fun update(user: User) {
-        TODO()
+        if (users.removeIf { it.id == user.id }) {
+            users.add(user)
+        }
     }
 
     override fun findOne(id: UUID): User? {
-        TODO()
+        return users.find { it.id == id }?.let { return it }
     }
 
-    override fun findAll(name: String?): List<User> {
-        TODO()
-    }
+    override fun findAll(name: String?): List<User> =
+        if (null != name) {
+            return users.filter { it.name == name }
+        } else {
+           return users
+        }
 }
