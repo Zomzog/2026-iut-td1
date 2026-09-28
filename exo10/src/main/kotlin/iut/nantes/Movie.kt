@@ -24,7 +24,7 @@ val FR_FR =
 val FR_CA =
     mapOf(
         "The Dark Knight" to "Le Chevalier Noir",
-        "Inception" to "Origine ",
+        "Inception" to "Origine",
         "My Little Pony: The Movie" to "Mon petit poney, le film",
     )
 
