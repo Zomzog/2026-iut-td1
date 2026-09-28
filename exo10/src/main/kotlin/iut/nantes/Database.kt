@@ -1,5 +1,6 @@
 package iut.nantes
 
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -12,4 +13,8 @@ class Database {
     }
 
     fun getOne(name: String) = movies[name]
+
+    fun findAll(): List<Movie> {
+        return movies.values.toList()
+    }
 }
