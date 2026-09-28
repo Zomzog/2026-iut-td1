@@ -5,6 +5,7 @@ import iut.nantes.Movie
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -31,5 +32,10 @@ class MovieController(val database: Database) {
     @GetMapping("/api/movies")
     fun listAll(): ResponseEntity<List<Movie>> =
         database.findAll().let { ResponseEntity.ok(it) }
+
+    @GetMapping("/api/movies/{name}")
+    fun findOne(@PathVariable name: String): ResponseEntity<Movie> =
+        database.getOne(name)
+            ?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
 
 }

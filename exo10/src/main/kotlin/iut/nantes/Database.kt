@@ -12,7 +12,7 @@ class Database {
         return movie
     }
 
-    fun getOne(name: String) = movies[name]
+    fun getOne(name: String): Movie? = movies[name]
 
     fun findAll(): List<Movie> {
         return movies.values.toList()
