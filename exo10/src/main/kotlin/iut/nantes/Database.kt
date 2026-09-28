@@ -14,8 +14,13 @@ class Database {
 
     fun getOne(name: String): Movie? = movies[name]
 
-    fun findAll(): List<Movie> {
-        return movies.values.toList()
+    fun findAll(queryRating: List<Int>?): List<Movie> {
+        val all = movies.values.toList()
+        return if (queryRating != null) {
+            all.filter { it.rating in queryRating }
+        } else {
+            all
+        }
     }
 
     fun update(movie: Movie): Movie {

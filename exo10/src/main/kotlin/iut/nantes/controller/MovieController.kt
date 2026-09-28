@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.util.UriUtils
 import java.net.URI
@@ -34,8 +35,9 @@ class MovieController(val database: Database) {
         }
 
     @GetMapping
-    fun listAll(): ResponseEntity<List<Movie>> =
-        database.findAll().let { ResponseEntity.ok(it) }
+    fun findAll(@RequestParam(name = "rating") queryRating: List<Int>?,
+                ): List<Movie> =
+        database.findAll(queryRating)
 
     @GetMapping("/{name}")
     fun findOne(@PathVariable name: String): ResponseEntity<Movie> =
