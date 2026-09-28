@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
@@ -53,6 +54,20 @@ class ExercisesTest {
             userService.save(user())
 
             assertThat(superUserService.findAll()).isEmpty()
+        }
+    }
+
+    @Nested
+    inner class Exo7 {
+
+        @Test
+        fun test() {
+            val context = AnnotationConfigApplicationContext(AppConfig::class.java)
+            val userService = context.getBean(UserService::class.java)
+            val superUserService = context.getBean(SuperUserService::class.java)
+
+            assertThat(userService.database).isInstanceOf(ListDatabase::class)
+            assertThat(superUserService.database).isInstanceOf(HashDatabase::class)
         }
     }
 }
