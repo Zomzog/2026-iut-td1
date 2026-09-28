@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.put
 @AutoConfigureMockMvc
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class MovieControllerTest {
+class Exercises10Test {
 
     @Autowired
     lateinit var mockMvc: MockMvc

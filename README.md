@@ -168,11 +168,11 @@ every { database.delete(user()) } throws NoSuchElementException()
 
 ```
 
-Pour que `userService` utilise le mock, déclarez-le dans la classe de test avec `@MockkBean lateinit var database: Database`.
+Pour que `userService` utilise le mock, déclarez-le dans la classe de test avec `@MockkBean lateinit var database: ListDatabase`.
 
 ## Exo 10
 
-À partir de cet exercice, les modifications seront à faire dans le module Exo10.
+À partir de cet exercice, les modifications seront à faire dans le module gradle `exo10`.
 
 Créer HelloController.kt dans un sous-package controller.
 
@@ -183,8 +183,9 @@ class HelloController {
     @GetMapping("/hello")
     fun hello() = "world"
 }
-
 ```
+
+Le test `Exercises10Test.Exo10` doit passer.
 
 ### Lancer & tester
 
@@ -193,7 +194,6 @@ ou en ligne de commande :
 
 ```bash
 ./gradlew :exo10:bootRun
-
 ```
 
 Appeler GET localhost:8080/hello et vérifier que la réponse est bien "world".
@@ -206,8 +206,9 @@ curl -XGET -v localhost:8080/hello
 < HTTP/1.1 200
 ...
 world
-
 ```
+
+Le test ``
 
 ## CRUD
 
