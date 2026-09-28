@@ -22,4 +22,8 @@ class Database {
         movies[movie.name] = movie
         return movie
     }
+
+    fun delete(name: String) {
+        movies.remove(name)
+    }
 }
