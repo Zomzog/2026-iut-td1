@@ -38,19 +38,13 @@ ajouter la création d'un bean SuperUserService.
 
 Il doit partager la même instance de `Database`.
 
-Dans la classe de test imbriquée `ExercisesTest.Exo2`, charger le contexte Spring à partir de AppConfig
-pour obtenir une instance des services.
-
-Le test doit passer.
+Le test `ExercisesTest.Exo2` doit passer.
 
 ## Exo 3
 
 En jouant sur le scope, faire en sorte qu'ils ne partagent plus la même instance de `Database`.
 
-Dans la classe de test imbriquée `ExercisesTest.Exo3`, charger le contexte Spring à partir de AppConfig
-pour obtenir une instance des services.
-
-Le test doit passer, le test `Exo2` ne passe plus.
+Le test `ExercisesTest.Exo3` doit passer, le test `ExercisesTest.Exo2` ne passe plus.
 
 ## Exo 4
 
@@ -70,27 +64,24 @@ Le test `Exo3` doit toujours fonctionner.
 
 ## Exo 6
 
-Créer une classe de tests unitaires `ListDatabaseTest` (dans `src/test/kotlin/iut/nantes/`) qui couvre à 100% `ListDatabase`.
+Créer une nouvelle version de Database nommée `HashDatabase` en utilisant une `Map<UUID, User>` comme persistance.
+Elle doit avoir exactement le même comportement que `ListDatabase`
+
+Créer une classe de tests unitaires `HashDatabaseTest` (dans `src/test/kotlin/iut/nantes/`) qui couvre à 100% `HashDatabase`.
 
 > **TIP:** pour mesurer la couverture dans IntelliJ, clic droit sur la classe de test puis **Run 'ListDatabaseTest' with Coverage**. Le résultat s'affiche dans la fenêtre **Coverage** et en vert/rouge dans le code de `ListDatabase`.
-
-## Exo 6.5
-
-Créer une nouvelle version de Database nommée `HashDatabase` en utilisant une `Map<UUID, User>` comme persistance.
-
-Elle doit répondre aux mêmes tests que ListDatabaseTest.
-
-> **TIP:** pour ne pas dupliquer les tests, écrivez-les dans une classe abstraite `DatabaseTest` avec une méthode abstraite `createDatabase(): Database`, puis créez `ListDatabaseTest` et `HashDatabaseTest` qui en héritent et fournissent chacun leur implémentation.
 
 ## Exo 7
 
 Dans AppConfig, créer le bean de HashDatabase en scope Singleton.
-Utiliser ce bean pour superUserService.
+Utiliser ce bean pour superUserService. 
+ListDatabase doit rester le choix par default pour la Database.
 
-Créer `Exo7Test.kt` (dans `src/test/kotlin/iut/nantes`) avec ce contenu, le test doit passer :
+Ajoutez dans `ExercisesTest.kt` (dans `src/test/kotlin/iut/nantes`) avec ce contenu :
 
 ```kotlin
-class Exo7Test {
+@Nested
+inner class Exo7 {
 
     @Test
     fun test() {
@@ -102,8 +93,9 @@ class Exo7Test {
         assertThat(superUserService.database).isInstanceOf(HashDatabase::class)
     }
 }
-
 ```
+
+Les tests `Exo1, Exo3, Exo7` doivent passer.
 
 ## Exo 8
 
@@ -122,12 +114,21 @@ class Exo8Test {
     @Autowired
     private lateinit var userService: UserService
 
+    @Autowired
+    private lateinit var superUserService: SuperUserService
+
     @Test
-    fun test() {
+    fun contextLoads() {
         // Test le chargement du contexte
     }
-}
 
+
+    @Test
+    fun test() {
+        assertThat(userService.database).isInstanceOf(ListDatabase::class)
+        assertThat(superUserService.database).isInstanceOf(HashDatabase::class)
+    }
+}
 ```
 
 ## Exo 9
@@ -137,17 +138,23 @@ Ajouter les dépendances de test `io.mockk:mockk-jvm:1.14.6` et `com.ninja-squad
 Créer `Exo9Test.kt` : sur le modèle de `Exo8Test`, remplacer la Database de userService par un mock.
 
 Ajouter ce test et le compléter pour qu'il soit valide.
+La partie THEN ne doit pas changer.
 
 ```kotlin
-@Test
-fun test() {
-    // GIVEN TODO
+class Exo9Test {
 
-    // THEN
-    assertThrows<NoSuchElementException> { userService.delete(user()) }
-    userService.delete(user(UUID.randomUUID()))
+    @Autowired
+    private lateinit var userService: UserService
+
+    @Test
+    fun test() {
+        // GIVEN TODO
+
+        // THEN
+        assertThrows<NoSuchElementException> { userService.delete(user()) }
+        userService.delete(user(UUID.randomUUID()))
+    }
 }
-
 ```
 
 Le `GIVEN` consiste à programmer le mock avec `every { ... } throws ...` ou `every { ... } just Runs`.
