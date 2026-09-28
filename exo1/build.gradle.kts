@@ -19,6 +19,9 @@ repositories {
 }
 
 dependencies {
+	implementation("org.springframework.boot:spring-boot-starter")
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
     implementation("org.springframework:spring-context")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
