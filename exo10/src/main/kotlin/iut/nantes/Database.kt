@@ -10,4 +10,6 @@ class Database {
         movies[movie.name] = movie
         return movie
     }
+
+    fun getOne(name: String) = movies[name]
 }
