@@ -17,4 +17,9 @@ class Database {
     fun findAll(): List<Movie> {
         return movies.values.toList()
     }
+
+    fun update(movie: Movie): Movie {
+        movies[movie.name] = movie
+        return movie
+    }
 }
