@@ -208,7 +208,7 @@ curl -XGET -v localhost:8080/hello
 world
 ```
 
-Le test ``
+Le test `Exercises10Test.Exo10` doit passer.
 
 ## CRUD
 
@@ -225,7 +225,7 @@ L'implémentation se fera dans une classe MovieController.
 
 > **TIP:** tous les endpoints commencent par `/api/movies` : `@RequestMapping("/api/movies")` sur la classe évite de répéter le préfixe.
 
-Des tests sont fournis dans `MovieControllerTest` (un `@Nested` par exo) :
+Des tests sont fournis dans `Exercises10Test` (un `@Nested` par exo) :
 ils sont rouges au départ et doivent passer au fur et à mesure des exos.
 
 ## Exo 11: Create
@@ -233,7 +233,7 @@ ils sont rouges au départ et doivent passer au fur et à mesure des exos.
 Le premier endpoint POST `/api/movies` prend le JSON d'un film, l'enregistre dans la Map et répond un HTTP 201 avec le contenu du film en body.
 La réponse contient aussi le header `Location` avec l'URL de la ressource créée (`/api/movies/{name}`).
 
-> **TIP:** `ResponseEntity.created(uri)` positionne le status 201 et le header `Location`. Le nom du film peut contenir des espaces : l'URI doit être encodée (`Jurassic%20Park`).
+> **TIP:** `ResponseEntity.created(uri)` positionne le status 201 et le header `Location`. Le nom du film peut contenir des espaces : l'URI doit être encodée (`Jurassic%20Park`) avec URLEncoder.
 
 Exemple d'appel :
 
@@ -344,7 +344,7 @@ Réponse :
 
 Ajouter un endpoint PUT `/api/movies/{name}` qui retourne :
 
-* un status 400 si la requête est invalide
+* un status 400 si la requête est invalide (name du body != name du path)
 * un status 404 si le film n'existe pas
 * un status 200 sinon, met à jour le film dans la Map et le retourne,
 
@@ -352,7 +352,9 @@ Exemple d'appel :
 
 ```bash
 curl --location --request PUT 'localhost:8080/api/movies/Inception' \
---header 'Content-Type: application/json' \
+--header 'Content-Type: application/json' 
+
+\
 --data-raw '{
     "name": "Inception",
     "releaseDate": 2010,
@@ -520,16 +522,6 @@ Réponse :
 ```
 
 ## Exo 19
-
-En utilisant MockMvc + SpringBootTest, faire une couverture à 100% du endpoint localhost:8080/api/movies?rating
-
-Un exemple est fourni dans MovieControllerTest,
-
-La documentation se trouve [ici](https://docs.spring.io/spring-framework/reference/testing/mockmvc.html?utm_source=gemini)
-
-> **NOTE:** utilisez le DSL Kotlin de `MockMvc` (`mockMvc.get(...) { ... }.andExpect { ... }`), comme dans l'exemple. Spring propose aussi `MockMvcTester` (API AssertJ) : elle existe, mais n'est pas utilisée dans ce TD.
-
-## Exo 20
 
 En utilisant WebMvcTest, faire une couverture à 100% du RestController
 

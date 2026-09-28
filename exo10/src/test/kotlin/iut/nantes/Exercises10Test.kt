@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
@@ -79,11 +80,13 @@ class Exercises10Test {
         }
 
         @Test
-        fun `un film existant dans la base de départ est un conflit`() {
+        fun no_conflict() {
+            jurrasicParkExist()
+
             mockMvc.post("/api/movies") {
                 contentType = MediaType.APPLICATION_JSON
-                content = """{"name": "Inception", "rating": 8, "releaseDate": 2010, "languages": ["VF"]}"""
-            }.andExpect { status { isConflict() } }
+                content = INCEPTION
+            }.andExpect { status { isCreated() } }
         }
     }
 
@@ -93,11 +96,16 @@ class Exercises10Test {
 
         @Test
         fun demoGet() {
+            // GIVEN
+            jurrasicParkExist()
+
+            //WHEN
             mockMvc.get("/api/movies")
+                // THEN
                 .andExpect {
                     status { isOk() }
                     content { contentType("application/json") }
-                    jsonPath("$[0].name") { value("The Dark Knight") }
+                    jsonPath("$[0].name") { value("Jurassic Park") }
                 }
         }
     }
@@ -108,7 +116,11 @@ class Exercises10Test {
 
         @Test
         fun found() {
+            // GIVEN
+            inceptionExist()
+            // WHEN
             mockMvc.get("/api/movies/Inception")
+                // THEN
                 .andExpect {
                     status { isOk() }
                     jsonPath("$.name") { value("Inception") }
@@ -129,6 +141,9 @@ class Exercises10Test {
 
         @Test
         fun updated() {
+            // GIVEN
+            inceptionExist()
+            // WHEN
             mockMvc.put("/api/movies/Inception") {
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"name": "Inception", "releaseDate": 2010, "rating": 87, "languages": ["VF", "VO"]}"""
@@ -164,7 +179,11 @@ class Exercises10Test {
 
         @Test
         fun deleted() {
+            // GIVEN
+            inceptionExist()
+            // WHEN
             mockMvc.delete("/api/movies/Inception")
+                // THEN
                 .andExpect { status { isNoContent() } }
 
             mockMvc.get("/api/movies/Inception")
@@ -177,7 +196,69 @@ class Exercises10Test {
                 .andExpect { status { isNotFound() } }
         }
     }
+
+    @Nested
+    @DisplayName("Exo 17 — GET list filtre")
+    inner class Exo17 {
+
+        @Test
+        fun demoGet() {
+            // GIVEN
+            jurrasicParkExist()
+            inceptionExist()
+
+            //WHEN
+            mockMvc.get("/api/movies?rating=91")
+                // THEN
+                .andExpect {
+                    status { isOk() }
+                    content { contentType("application/json") }
+                    jsonPath("$.length()") { value(1) }
+                    jsonPath("$[0].name") { value("Jurassic Park") }
+                }
+        }
+    }
+
+    @Nested
+    @DisplayName("Exo 18 — GET list translate")
+    inner class Exo18 {
+
+        @Test
+        fun demoGet() {
+            // GIVEN
+            jurrasicParkExist()
+            inceptionExist()
+
+            //WHEN
+            mockMvc.get("/api/movies?rating=8") {
+                header(HttpHeaders.ACCEPT_LANGUAGE, "FR-CA")
+            }
+                // THEN
+                .andExpect {
+                    status { isOk() }
+                    content { contentType("application/json") }
+                    jsonPath("$.length()") { value(1) }
+                    jsonPath("$[0].name") { value("Origine") }
+                }
+        }
+    }
+}
+
+private fun Exercises10Test.jurrasicParkExist() {
+    mockMvc.post("/api/movies") {
+        contentType = MediaType.APPLICATION_JSON
+        content = JURASSIC_PARK
+    }.andExpect { status { isCreated() } }
+}
+
+private fun Exercises10Test.inceptionExist() {
+    mockMvc.post("/api/movies") {
+        contentType = MediaType.APPLICATION_JSON
+        content = INCEPTION
+    }.andExpect { status { isCreated() } }
 }
 
 private const val JURASSIC_PARK =
     """{"name": "Jurassic Park", "rating": 91, "releaseDate": 1993, "languages": ["VO", "VFF", "VFQ"]}"""
+private const val INCEPTION =
+    """{ "name": "Inception", "releaseDate": 2010, "rating": 8, "languages": [ "VF" ] }"""
