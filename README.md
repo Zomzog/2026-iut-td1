@@ -2,7 +2,7 @@
 
 Cloner [https://github.com/Zomzog/2026-iut-td1.git](https://github.com/Zomzog/2026-iut-td1.git?utm_source=gemini)
 
-Sur le réseau de l'IUT, ajouter dans le fichier `~/.gradle/gradle.properties` (à créer s'il n'existe pas, il est commun à tous vos projets) le contenu suivant :
+Sur le réseau de l'IUT, ajouter dans le fichier `gradle.properties` le contenu suivant :
 
 ```properties
 systemProp.http.proxyHost=srv-proxy-etu-2.iut-nantes.univ-nantes.prive
@@ -233,7 +233,7 @@ ils sont rouges au départ et doivent passer au fur et à mesure des exos.
 Le premier endpoint POST `/api/movies` prend le JSON d'un film, l'enregistre dans la Map et répond un HTTP 201 avec le contenu du film en body.
 La réponse contient aussi le header `Location` avec l'URL de la ressource créée (`/api/movies/{name}`).
 
-> **TIP:** `ResponseEntity.created(uri)` positionne le status 201 et le header `Location`. Le nom du film peut contenir des espaces : l'URI doit être encodée (`Jurassic%20Park`) avec URLEncoder.
+> **TIP:** `ResponseEntity.created(uri)` positionne le status 201 et le header `Location`. Le nom du film peut contenir des espaces : l'URI doit être encodée (`Jurassic%20Park`) avec UriUtils.
 
 Exemple d'appel :
 
